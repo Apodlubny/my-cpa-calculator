@@ -1,5 +1,5 @@
 // src/CPACalculator.js
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import styled from "styled-components";
 
 // Styled component for the outer container
@@ -44,12 +44,21 @@ function CPACalculator() {
   const [clicks, setClicks] = useState(3190);
   const [conversionRate, setConversionRate] = useState(2.59);
   const [cpa, setCPA] = useState(null);
+  const [totalCost, setTotalCost] = useState(null);
+  const [usersMadePurchase, setUsersMadePurchase] = useState(null);
 
   const calculateCPA = () => {
-    const impressions = (installs / (ctr / 1000)) * 1000;
-    const totalCost = (impressions / 1000) * cpm;
-    const cpc = totalCost / clicks;
-    const calculatedCPA = cpc / (conversionRate / 100) / 1000;
+    // Calculate Total Cost
+    const impressions = (clicks / ctr) * 100;
+    const calculatedTotalCost = (impressions / 1000) * cpm;
+    setTotalCost(calculatedTotalCost.toFixed(2));
+
+    // Calculate Number of Users Who Made a Purchase
+    const calculatedUsersMadePurchase = (installs * conversionRate) / 100;
+    setUsersMadePurchase(Math.round(calculatedUsersMadePurchase));
+
+    // Calculate CPA
+    const calculatedCPA = calculatedTotalCost / calculatedUsersMadePurchase;
     setCPA(calculatedCPA.toFixed(2));
   };
 
@@ -119,9 +128,17 @@ function CPACalculator() {
       </div>
       <CalculateButton onClick={calculateCPA}>Calculate CPA</CalculateButton>
       {cpa !== null && (
-        <p className="mt-4 text-lg font-semibold">
-          Cost Per Acquisition (CPA) per user: €{cpa}
-        </p>
+        <Fragment>
+          <p className="mt-4 text-lg font-semibold">
+            Total Cost of the Advertising Campaign: €{totalCost}
+          </p>
+          <p className="mt-4 text-lg font-semibold">
+            Number of Users Who Made an In-App Purchase: {usersMadePurchase}
+          </p>
+          <p className="mt-4 text-lg font-semibold">
+            Cost Per Acquisition (CPA) per user: €{cpa}
+          </p>
+        </Fragment>
       )}
     </Container>
   );
